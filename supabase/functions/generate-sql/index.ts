@@ -46,13 +46,26 @@ serve(async (req) => {
 
     const data = await response.json();
 
-    if (!data.candidates || data.candidates.length === 0 || !data.candidates[0].content?.parts[0]?.text) {
-        console.error('Invalid response from Gemini:', data);
-        throw new Error('Received an invalid response from the Gemini API.');
+    if (!data.candidates || data.candidates.length === 0) {
+      if (data.promptFeedback?.blockReason) {
+        throw new Error(`Request blocked by Gemini. Reason: ${data.promptFeedback.blockReason}`);
+      }
+      console.error('Invalid response from Gemini: No candidates found.', data);
+      throw new Error('Received an invalid response from the Gemini API (no candidates).');
+    }
+    
+    const candidate = data.candidates[0];
+
+    if (!candidate.content || !candidate.content.parts || candidate.content.parts.length === 0 || !candidate.content.parts[0].text) {
+        console.error('Invalid response from Gemini: No text content found.', JSON.stringify(data, null, 2));
+        if (candidate.finishReason) {
+             throw new Error(`Content generation failed. Reason: ${candidate.finishReason}`);
+        }
+        throw new Error('Received a response with no usable content from Gemini.');
     }
 
     // Parse the output, extract SQL from code block if present
-    let generatedSql = data.candidates[0].content.parts[0].text as string;
+    let generatedSql = candidate.content.parts[0].text as string;
     const codeMatch = generatedSql.match(/```(?:sql)?\s*([^`]+)```/i);
     if (codeMatch) {
       generatedSql = codeMatch[1].trim();
@@ -72,4 +85,3 @@ serve(async (req) => {
     });
   }
 });
-
