@@ -5,11 +5,18 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import TypewriterText from '@/components/TypewriterText';
 
 const HeroSection = () => {
   const [description, setDescription] = useState('');
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const typewriterTexts = [
+    "From app idea to SQL magic — instantly.",
+    "Auto-generate database schemas from your thoughts.",
+    "Describe it. We query it."
+  ];
 
   const handleGenerate = () => {
     if (!description.trim()) {
@@ -52,8 +59,18 @@ const HeroSection = () => {
           </div>
         </div>
 
+        {/* Typewriter Tagline */}
+        <div className="animate-slide-in" style={{ animationDelay: '0.2s' }}>
+          <TypewriterText 
+            texts={typewriterTexts}
+            speed={80}
+            pauseBetween={3000}
+            className="text-xl md:text-2xl text-gray-300 font-inter min-h-[2rem]"
+          />
+        </div>
+
         {/* Input Section */}
-        <div className="space-y-6 animate-slide-in" style={{ animationDelay: '0.3s' }}>
+        <div className="space-y-6 animate-slide-in" style={{ animationDelay: '0.4s' }}>
           <div className="relative max-w-2xl mx-auto">
             <Input
               placeholder="Describe your database (e.g., Blog with authors, posts, comments)"
@@ -75,7 +92,7 @@ const HeroSection = () => {
         </div>
 
         {/* Subtitle */}
-        <p className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto animate-slide-in" style={{ animationDelay: '0.6s' }}>
+        <p className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto animate-slide-in" style={{ animationDelay: '0.8s' }}>
           Transform your database ideas into perfect SQL queries with the power of AI magic
         </p>
       </div>
