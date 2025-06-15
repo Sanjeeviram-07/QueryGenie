@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Database, Menu, X, History, User, Home, LogOut, Mail } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -162,11 +161,11 @@ const Navbar = () => {
                 <Avatar>
                   <AvatarFallback className="bg-neon-violet text-white">{userInitial}</AvatarFallback>
                 </Avatar>
-                <div className="flex flex-col -space-y-1">
-                  <span className="text-sm font-semibold text-neon-violet">{user.email}</span>
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold text-neon-violet truncate">{user.email}</span>
                   <Button
                     variant="ghost"
-                    className="p-0 h-5 text-red-500 text-xs"
+                    className="p-0 h-5 text-red-500 text-xs justify-start"
                     onClick={() => { setIsMobileMenuOpen(false); handleSignOut(); }}
                   >
                     <LogOut className="w-4 h-4 mr-1" />Sign Out
@@ -182,4 +181,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
