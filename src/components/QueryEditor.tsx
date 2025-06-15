@@ -41,8 +41,8 @@ const QueryEditor = () => {
       });
   }, [user, generatedQuery]);
 
-  // Replace the old static response AI generator with an edge function call
-  const generateFromChatGPT = async (desc: string): Promise<string> => {
+  // Use the edge function to generate SQL
+  const generateSqlFromAI = async (desc: string): Promise<string> => {
     const { data, error } = await supabase.functions.invoke(EDGE_FUNCTION_PATH, {
       body: { prompt: desc }
     });
@@ -59,8 +59,8 @@ const QueryEditor = () => {
     }
     setLoading(true);
     try {
-      // "AI" generates SQL (replace with real call for production)
-      const aiResponse = await generateFromChatGPT(prompt);
+      // "AI" generates SQL
+      const aiResponse = await generateSqlFromAI(prompt);
       setGeneratedQuery(aiResponse);
 
       // Save to Supabase

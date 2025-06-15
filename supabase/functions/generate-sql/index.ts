@@ -2,7 +2,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const geminiApiKey = Deno.env.get('GOOGLE_GEMINI_API_KEY');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,34 +18,47 @@ serve(async (req) => {
   try {
     const { prompt } = await req.json();
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const fullPrompt = `You are a helpful assistant that returns expert-level, production-grade PostgreSQL SQL queries or DDL statements in response to descriptive user requests. Only output the SQL in a code block. User request: "${prompt}"`;
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content:
-              'You are a helpful assistant that returns expert-level, production-grade PostgreSQL SQL queries or DDL statements in response to descriptive user requests. Only output the SQL in a code block.',
-          },
-          { role: 'user', content: prompt },
-        ],
-        max_tokens: 512,
-        temperature: 0.2,
+        contents: [{
+          parts: [{
+            text: fullPrompt
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.2,
+          maxOutputTokens: 512,
+        }
       }),
     });
 
+    if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Gemini API error:', errorData);
+        throw new Error(errorData.error?.message || 'Failed to generate SQL from Gemini');
+    }
+
     const data = await response.json();
 
+    if (!data.candidates || data.candidates.length === 0 || !data.candidates[0].content?.parts[0]?.text) {
+        console.error('Invalid response from Gemini:', data);
+        throw new Error('Received an invalid response from the Gemini API.');
+    }
+
     // Parse the output, extract SQL from code block if present
-    let generatedSql = data.choices[0].message.content as string;
+    let generatedSql = data.candidates[0].content.parts[0].text as string;
     const codeMatch = generatedSql.match(/```(?:sql)?\s*([^`]+)```/i);
     if (codeMatch) {
       generatedSql = codeMatch[1].trim();
+    } else {
+       // If no code block is found, return the whole text, trimmed.
+       generatedSql = generatedSql.trim();
     }
 
     return new Response(JSON.stringify({ generatedSql }), {
@@ -59,3 +72,4 @@ serve(async (req) => {
     });
   }
 });
+
