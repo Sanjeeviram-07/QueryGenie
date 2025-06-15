@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Mail, Lock, User, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [signupData, setSignupData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
+  const [showConfirmEmailNotice, setShowConfirmEmailNotice] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -68,10 +70,8 @@ const Auth = () => {
       });
       return;
     }
-    toast({
-      title: "Check your email!",
-      description: "Please confirm your account via the link in your inbox.",
-    });
+    // Show persistent message instead of immediate toast
+    setShowConfirmEmailNotice(true);
   };
 
   return (
@@ -155,78 +155,90 @@ const Auth = () => {
               </TabsContent>
 
               <TabsContent value="signup">
-                <form onSubmit={handleSignup} className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                      <Input
-                        type="text"
-                        placeholder="Full Name"
-                        value={signupData.name}
-                        onChange={(e) => setSignupData({ ...signupData, name: e.target.value })}
-                        className="glass-effect pl-10 text-white placeholder-gray-400 border-white/20 focus:border-neon-violet focus:ring-2 focus:ring-neon-violet/50"
-                        required
-                      />
+                {!showConfirmEmailNotice ? (
+                  <form onSubmit={handleSignup} className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                        <Input
+                          type="text"
+                          placeholder="Full Name"
+                          value={signupData.name}
+                          onChange={(e) => setSignupData({ ...signupData, name: e.target.value })}
+                          className="glass-effect pl-10 text-white placeholder-gray-400 border-white/20 focus:border-neon-violet focus:ring-2 focus:ring-neon-violet/50"
+                          required
+                        />
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                      <Input
-                        type="email"
-                        placeholder="Email"
-                        value={signupData.email}
-                        onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
-                        className="glass-effect pl-10 text-white placeholder-gray-400 border-white/20 focus:border-neon-violet focus:ring-2 focus:ring-neon-violet/50"
-                        required
-                      />
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                        <Input
+                          type="email"
+                          placeholder="Email"
+                          value={signupData.email}
+                          onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
+                          className="glass-effect pl-10 text-white placeholder-gray-400 border-white/20 focus:border-neon-violet focus:ring-2 focus:ring-neon-violet/50"
+                          required
+                        />
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                      <Input
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Password"
-                        value={signupData.password}
-                        onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
-                        className="glass-effect pl-10 pr-10 text-white placeholder-gray-400 border-white/20 focus:border-neon-violet focus:ring-2 focus:ring-neon-violet/50"
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
-                      >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Password"
+                          value={signupData.password}
+                          onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
+                          className="glass-effect pl-10 pr-10 text-white placeholder-gray-400 border-white/20 focus:border-neon-violet focus:ring-2 focus:ring-neon-violet/50"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                      <Input
-                        type="password"
-                        placeholder="Confirm Password"
-                        value={signupData.confirmPassword}
-                        onChange={(e) => setSignupData({ ...signupData, confirmPassword: e.target.value })}
-                        className="glass-effect pl-10 text-white placeholder-gray-400 border-white/20 focus:border-neon-violet focus:ring-2 focus:ring-neon-violet/50"
-                        required
-                      />
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                        <Input
+                          type="password"
+                          placeholder="Confirm Password"
+                          value={signupData.confirmPassword}
+                          onChange={(e) => setSignupData({ ...signupData, confirmPassword: e.target.value })}
+                          className="glass-effect pl-10 text-white placeholder-gray-400 border-white/20 focus:border-neon-violet focus:ring-2 focus:ring-neon-violet/50"
+                          required
+                        />
+                      </div>
                     </div>
-                  </div>
 
-                  <Button
-                    type="submit"
-                    className="w-full bg-gradient-to-r from-neon-violet to-soft-blue hover:from-soft-blue hover:to-neon-violet text-white font-semibold py-3 rounded-lg shadow-glow hover:shadow-glow-lg transition-all duration-300"
-                  >
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Create Account
-                  </Button>
-                </form>
+                    <Button
+                      type="submit"
+                      className="w-full bg-gradient-to-r from-neon-violet to-soft-blue hover:from-soft-blue hover:to-neon-violet text-white font-semibold py-3 rounded-lg shadow-glow hover:shadow-glow-lg transition-all duration-300"
+                    >
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Create Account
+                    </Button>
+                  </form>
+                ) : (
+                  <div className="text-center p-4">
+                    <h3 className="text-lg font-semibold text-neon-violet mb-2">
+                      Please check your email!
+                    </h3>
+                    <p className="text-gray-300">
+                      We've sent a confirmation link to <span className="font-semibold">{signupData.email}</span>.<br />
+                      After confirming, log in to your account.
+                    </p>
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
 
@@ -243,3 +255,4 @@ const Auth = () => {
 };
 
 export default Auth;
+

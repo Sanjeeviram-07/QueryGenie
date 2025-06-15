@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Search, Filter, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,6 +8,15 @@ import ParticleBackground from '@/components/ParticleBackground';
 import Navbar from '@/components/Navbar';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+
+// Fix: define proper type for history row
+type QueryHistoryRow = {
+  id: string;
+  prompt: string;
+  response: string;
+  created_at: string;
+  user_id: string;
+}
 
 interface HistoryEntry {
   id: string;
@@ -23,15 +33,17 @@ const QueryHistory = () => {
 
   useEffect(() => {
     if (!user) return;
-    // Fetch query history from Supabase for this user, sorted newest first
-    supabase.from("query_history")
+    // Fix: Use correct returned type in Supabase call
+    supabase
+      .from("query_history")
       .select("*")
       .eq('user_id', user.id)
       .order("created_at", { ascending: false })
       .then(({ data, error }) => {
         if (data) {
           setHistoryEntries(
-            data.map((r) => ({
+            // Fix: explicit typing via as QueryHistoryRow[]
+            (data as QueryHistoryRow[]).map((r) => ({
               id: r.id,
               description: r.prompt,
               date: r.created_at.slice(0, 10),
@@ -171,3 +183,4 @@ const QueryHistory = () => {
 };
 
 export default QueryHistory;
+
