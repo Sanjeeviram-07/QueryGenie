@@ -161,7 +161,7 @@ const Navbar = () => {
                 <Avatar>
                   <AvatarFallback className="bg-neon-violet text-white">{userInitial}</AvatarFallback>
                 </Avatar>
-                <div className="flex flex-col">
+                <div className="flex flex-col space-y-1">
                   <span className="text-sm font-semibold text-neon-violet truncate">{user.email}</span>
                   <Button
                     variant="ghost"
