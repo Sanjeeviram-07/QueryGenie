@@ -161,11 +161,11 @@ const Navbar = () => {
                 <Avatar>
                   <AvatarFallback className="bg-neon-violet text-white">{userInitial}</AvatarFallback>
                 </Avatar>
-                <div className="flex flex-col space-y-1">
+                <div className="flex flex-col space-y-0.5">
                   <span className="text-sm font-semibold text-neon-violet truncate">{user.email}</span>
                   <Button
                     variant="ghost"
-                    className="p-0 h-5 text-red-500 text-xs justify-start"
+                    className="p-0 h-5 text-red-500 text-xs justify-start mt-2"
                     onClick={() => { setIsMobileMenuOpen(false); handleSignOut(); }}
                   >
                     <LogOut className="w-4 h-4 mr-1" />Sign Out
