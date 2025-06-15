@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Copy, Check, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,6 +15,8 @@ type QueryHistoryRow = {
   created_at: string;
   user_id: string;
 };
+
+const EDGE_FUNCTION_PATH = "generate-sql";
 
 const QueryEditor = () => {
   const { toast } = useToast();
@@ -40,22 +41,15 @@ const QueryEditor = () => {
       });
   }, [user, generatedQuery]);
 
-  // Simulate a "chatgpt" AI SQL generator (for this demo, static response)
+  // Replace the old static response AI generator with an edge function call
   const generateFromChatGPT = async (desc: string): Promise<string> => {
-    // Here, you would call your AI backend or OpenAI API.
-    // For demo, just respond with a static query relevant to description.
-    if (
-      desc.toLowerCase().includes("blog") ||
-      desc.toLowerCase().includes("author")
-    ) {
-      return `CREATE TABLE authors (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(100) NOT NULL,
-  email VARCHAR(255) UNIQUE NOT NULL
-);`;
+    const { data, error } = await supabase.functions.invoke(EDGE_FUNCTION_PATH, {
+      body: { prompt: desc }
+    });
+    if (error || !data || !data.generatedSql) {
+      throw new Error(error?.message || "Failed to generate SQL from AI");
     }
-    // Fallback for unknown prompt:
-    return `SELECT * FROM my_table;`;
+    return data.generatedSql as string;
   };
 
   const handleGenerate = async () => {

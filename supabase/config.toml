@@ -1,1 +1,4 @@
 project_id = "zidkjsukkisiyetcrdwp"
+
+[functions.generate-sql]
+verify_jwt = true
