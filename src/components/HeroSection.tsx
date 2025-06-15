@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Sparkles, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -55,6 +56,30 @@ const HeroSection = () => {
         throw new Error(error?.message || "Failed to generate SQL from AI");
       }
       setGeneratedSql(data.generatedSql);
+
+      // Save to Supabase
+      if (user) {
+        const { error: insertError } = await supabase
+          .from('query_history')
+          .insert({
+            user_id: user.id,
+            prompt: description,
+            response: data.generatedSql,
+          });
+
+        if (insertError) {
+          toast({
+            title: "Failed to save to history",
+            description: insertError.message,
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Saved!",
+            description: "Query saved to your history.",
+          });
+        }
+      }
     } catch (e: any) {
       setGeneratedSql(null);
       toast({
