@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Sparkles, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -30,11 +29,7 @@ const HeroSection = () => {
 
   const handleGenerate = async () => {
     if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please log in or sign up to generate SQL queries.",
-        action: <Button onClick={() => navigate('/auth')}>Login / Sign Up</Button>,
-      });
+      navigate('/auth');
       return;
     }
 
