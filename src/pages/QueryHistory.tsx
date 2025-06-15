@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Search, Filter, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -35,15 +34,14 @@ const QueryHistory = () => {
     if (!user) return;
     // Fix: Use correct returned type in Supabase call
     supabase
-      .from("query_history")
+      .from("query_history" as never)
       .select("*")
       .eq('user_id', user.id)
       .order("created_at", { ascending: false })
       .then(({ data, error }) => {
         if (data) {
           setHistoryEntries(
-            // Fix: explicit typing via as QueryHistoryRow[]
-            (data as QueryHistoryRow[]).map((r) => ({
+            (data as any[]).map((r) => ({
               id: r.id,
               description: r.prompt,
               date: r.created_at.slice(0, 10),
@@ -183,4 +181,3 @@ const QueryHistory = () => {
 };
 
 export default QueryHistory;
-
