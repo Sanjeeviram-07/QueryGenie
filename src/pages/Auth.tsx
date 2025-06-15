@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Mail, Lock, User, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +8,8 @@ import ParticleBackground from '@/components/ParticleBackground';
 import Navbar from '@/components/Navbar';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -16,24 +17,35 @@ const Auth = () => {
   const [signupData, setSignupData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
 
-  const handleLogin = (e: React.FormEvent) => {
+  React.useEffect(() => {
+    if (user) navigate("/queries");
+  }, [user, navigate]);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    const { email, password } = loginData;
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      toast({
+        title: "Login failed",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
     toast({
       title: "Welcome back! ✨",
       description: "Login successful - redirecting to query editor...",
     });
-
-    // Simulate authentication and redirect to query editor
     setTimeout(() => {
       navigate('/queries');
-    }, 1500);
+    }, 1000);
   };
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (signupData.password !== signupData.confirmPassword) {
       toast({
         title: "Password mismatch",
@@ -42,16 +54,24 @@ const Auth = () => {
       });
       return;
     }
-
-    toast({
-      title: "Account created! 🎉",
-      description: "Welcome to QueryGenie - redirecting to query editor...",
+    const redirectUrl = `${window.location.origin}/auth/callback`;
+    const { error } = await supabase.auth.signUp({
+      email: signupData.email,
+      password: signupData.password,
+      options: { emailRedirectTo: redirectUrl }
     });
-
-    // Simulate account creation and redirect to query editor
-    setTimeout(() => {
-      navigate('/queries');
-    }, 1500);
+    if (error) {
+      toast({
+        title: "Signup failed",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+    toast({
+      title: "Check your email!",
+      description: "Please confirm your account via the link in your inbox.",
+    });
   };
 
   return (

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Search, Filter, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import ParticleBackground from '@/components/ParticleBackground';
 import Navbar from '@/components/Navbar';
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 interface HistoryEntry {
   id: string;
@@ -16,44 +17,31 @@ interface HistoryEntry {
 }
 
 const QueryHistory = () => {
+  const { user, loading } = useAuth({ redirectTo: "/auth" });
   const [searchTerm, setSearchTerm] = useState('');
   const [historyEntries, setHistoryEntries] = useState<HistoryEntry[]>([]);
 
   useEffect(() => {
-    // Sample history data
-    const sampleHistory: HistoryEntry[] = [
-      {
-        id: '1',
-        description: 'Blog with authors, posts, comments',
-        date: '2024-01-15',
-        time: '14:30',
-        queryCount: 6
-      },
-      {
-        id: '2',
-        description: 'E-commerce with products, orders, customers',
-        date: '2024-01-14',
-        time: '10:15',
-        queryCount: 8
-      },
-      {
-        id: '3',
-        description: 'Social media platform with users, posts, likes',
-        date: '2024-01-13',
-        time: '16:45',
-        queryCount: 10
-      },
-      {
-        id: '4',
-        description: 'Task management with projects, tasks, users',
-        date: '2024-01-12',
-        time: '09:20',
-        queryCount: 7
-      }
-    ];
-
-    setHistoryEntries(sampleHistory);
-  }, []);
+    if (!user) return;
+    // Fetch query history from Supabase for this user, sorted newest first
+    supabase.from("query_history")
+      .select("*")
+      .eq('user_id', user.id)
+      .order("created_at", { ascending: false })
+      .then(({ data, error }) => {
+        if (data) {
+          setHistoryEntries(
+            data.map((r) => ({
+              id: r.id,
+              description: r.prompt,
+              date: r.created_at.slice(0, 10),
+              time: new Date(r.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              queryCount: r.response.split("\n---\n").length
+            }))
+          );
+        }
+      });
+  }, [user]);
 
   const filteredEntries = historyEntries.filter(entry =>
     entry.description.toLowerCase().includes(searchTerm.toLowerCase())

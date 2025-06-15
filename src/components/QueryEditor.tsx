@@ -1,10 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
 import { Copy, Check, Eye, Database, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 interface QueryBlock {
   id: string;
@@ -19,6 +20,7 @@ const QueryEditor = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [description, setDescription] = useState('');
   const { toast } = useToast();
+  const { user } = useAuth({ redirectTo: "/auth" });
 
   useEffect(() => {
     // Get description from localStorage
@@ -27,9 +29,9 @@ const QueryEditor = () => {
 
     // Generate sample queries based on description
     generateSampleQueries(savedDescription);
-  }, []);
+  }, [user]);
 
-  const generateSampleQueries = (desc: string) => {
+  const generateSampleQueries = async (desc: string) => {
     const sampleQueries: QueryBlock[] = [
       {
         id: '1',
@@ -140,6 +142,20 @@ LIMIT 10;`,
         setQueries(prev => [...prev, query]);
       }, index * 500);
     });
+
+    // Save to Supabase when finished (as a single record with prompt & first SQL query for demo)
+    try {
+      if (user && sampleQueries.length > 0) {
+        await supabase.from("query_history").insert({
+          user_id: user.id,
+          prompt: desc,
+          response: sampleQueries.map(q => q.query).join("\n\n---\n\n"),
+        });
+      }
+    } catch (e) {
+      // Silent fail, can show toast if wanted
+      // toast({ title: "Couldn't save query history", ... })
+    }
   };
 
   const copyToClipboard = async (query: string, id: string) => {
