@@ -7,6 +7,8 @@ import { useToast } from '@/hooks/use-toast';
 import TypewriterText from '@/components/TypewriterText';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from 'react-router-dom';
 
 const EDGE_FUNCTION_PATH = "generate-sql";
 
@@ -17,6 +19,8 @@ const HeroSection = () => {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const typewriterTexts = [
     "From app idea to SQL magic — instantly.",
@@ -25,6 +29,15 @@ const HeroSection = () => {
   ];
 
   const handleGenerate = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in or sign up to generate SQL queries.",
+        action: <Button onClick={() => navigate('/auth')}>Login / Sign Up</Button>,
+      });
+      return;
+    }
+
     if (!description.trim()) {
       toast({
         title: "Please describe your database",
