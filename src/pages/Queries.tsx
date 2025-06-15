@@ -2,16 +2,16 @@
 import React from 'react';
 import ParticleBackground from '@/components/ParticleBackground';
 import Navbar from '@/components/Navbar';
-import HeroSection from '@/components/HeroSection';
+import QueryEditor from '@/components/QueryEditor';
 
-const Index = () => {
+const Queries = () => {
   return (
-    <div className="min-h-screen bg-query-gradient overflow-hidden">
+    <div className="min-h-screen bg-query-gradient">
       <ParticleBackground />
       <Navbar />
-      <HeroSection />
+      <QueryEditor />
     </div>
   );
 };
 
-export default Index;
+export default Queries;
