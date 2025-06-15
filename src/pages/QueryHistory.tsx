@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, Search, Filter, Eye } from 'lucide-react';
+import { Calendar, Clock, Search, Filter, Eye, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +7,8 @@ import ParticleBackground from '@/components/ParticleBackground';
 import Navbar from '@/components/Navbar';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { useToast } from "@/hooks/use-toast";
 
 // Fix: define proper type for history row
 type QueryHistoryRow = {
@@ -23,12 +25,16 @@ interface HistoryEntry {
   date: string;
   time: string;
   queryCount: number;
+  response: string;
 }
 
 const QueryHistory = () => {
   const { user, loading } = useAuth({ redirectTo: "/auth" });
   const [searchTerm, setSearchTerm] = useState('');
   const [historyEntries, setHistoryEntries] = useState<HistoryEntry[]>([]);
+  const [selectedEntry, setSelectedEntry] = useState<HistoryEntry | null>(null);
+  const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!user) return;
@@ -46,7 +52,8 @@ const QueryHistory = () => {
               description: r.prompt,
               date: r.created_at.slice(0, 10),
               time: new Date(r.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-              queryCount: r.response.split("\n---\n").length
+              queryCount: r.response.split("\n---\n").length,
+              response: r.response,
             }))
           );
         }
@@ -64,6 +71,17 @@ const QueryHistory = () => {
       month: 'short', 
       day: 'numeric' 
     });
+  };
+
+  const handleCopy = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      toast({ title: "Copied!", description: "Query copied to clipboard." });
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast({ title: "Failed to copy.", variant: "destructive" });
+    }
   };
 
   return (
@@ -121,7 +139,7 @@ const QueryHistory = () => {
               filteredEntries.map((entry, index) => (
                 <Card 
                   key={entry.id} 
-                  className="crystal-effect hover:shadow-glow transition-all duration-300 cursor-pointer animate-slide-in"
+                  className="crystal-effect hover:shadow-glow transition-all duration-300 animate-slide-in"
                   style={{ animationDelay: `${0.4 + index * 0.1}s` }}
                 >
                   <CardHeader>
@@ -133,6 +151,7 @@ const QueryHistory = () => {
                         variant="ghost"
                         size="sm"
                         className="hover:bg-neon-violet/20 text-neon-violet transition-all duration-300 flex-shrink-0"
+                        onClick={() => setSelectedEntry(entry)}
                       >
                         <Eye className="h-4 w-4 mr-2" />
                         View Queries
@@ -176,6 +195,50 @@ const QueryHistory = () => {
           )}
         </div>
       </div>
+
+      <Dialog open={!!selectedEntry} onOpenChange={(isOpen) => { if (!isOpen) setSelectedEntry(null); }}>
+        <DialogContent className="bg-card text-white max-w-2xl w-full crystal-effect">
+          <DialogHeader>
+            <DialogTitle>Generated SQL</DialogTitle>
+          </DialogHeader>
+          {selectedEntry && (
+            <div>
+              <div className="mb-4">
+                <p className="font-semibold text-gray-300">Prompt:</p>
+                <p className="text-gray-400 italic">{selectedEntry.description}</p>
+              </div>
+
+              <div className="relative">
+                <p className="font-semibold text-gray-300 mb-2">Query:</p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute top-0 right-0 hover:bg-neon-violet/20 transition-all duration-300"
+                  onClick={() => handleCopy(selectedEntry.response)}
+                >
+                  {copied ? (
+                    <Check className="h-4 w-4 text-green-400" />
+                  ) : (
+                    <Copy className="h-4 w-4 text-gray-400" />
+                  )}
+                </Button>
+                <pre className="text-sm text-gray-300 font-mono whitespace-pre-wrap bg-black/30 p-3 rounded-md max-h-64 overflow-auto">
+                  <code>{selectedEntry.response}</code>
+                </pre>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setSelectedEntry(null)}
+              className="glass-effect border-white/20 text-white hover:bg-white/10"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
