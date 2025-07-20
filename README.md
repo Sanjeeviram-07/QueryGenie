@@ -66,11 +66,3 @@ Contributions are welcome! Please fork the repository and submit a pull request.
 
 📄 License
 MIT License © 2025 Sanjeeviram
-
-yaml
-Copy
-Edit
-
----
-
-Would you like me to tailor this for a **monorepo** if you're managing both frontend and backend in one project?
