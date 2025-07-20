@@ -1,73 +1,76 @@
-# Welcome to your Lovable project
+# QueryGenie – AI SQL Generator ⚡
 
-## Project info
+QueryGenie is a smart AI-powered web application that converts natural language questions into SQL queries in real-time using the **Gemini API**. Built with a modern tech stack, QueryGenie bridges the gap between users and databases — no SQL knowledge required.
 
-**URL**: https://lovable.dev/projects/7b34d071-9d4e-4e81-969a-04a46f539855
+## 🚀 Features
 
-## How can I edit this code?
+- 🔮 Convert natural language to SQL using Gemini API
+- 🧠 Seamless integration with Supabase for query execution
+- ⚡ Real-time results with responsive and sleek UI
+- 🔐 Credentials handled securely via environment variables
+- ☁️ Spabasebase integrated for authentication or optional data handling
 
-There are several ways of editing your application.
+## 🛠️ Tech Stack
 
-**Use Lovable**
+- **Frontend**: React.js, Tailwind CSS
+- **AI Engine**: Gemini API (by Google)
+- **Backend/Database**: Supabase
+- **Dev Tools**: Vite, GitHub
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/7b34d071-9d4e-4e81-969a-04a46f539855) and start prompting.
+## 📂 Project Structure
 
-Changes made via Lovable will be committed automatically to this repo.
+QueryGenie/
+├── public/
+├── src/
+│ ├── components/
+│ ├── services/ # API & Supabase utils
+│ └── App.jsx
+├── .env # Environment variables (not committed)
+├── .gitignore
+├── README.md
+└── package.json
 
-**Use your preferred IDE**
+makefile
+Copy
+Edit
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🔐 Environment Setup
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Create a `.env` file in the root:
 
-Follow these steps:
+```env
+VITE_GEMINI_API_KEY=your_gemini_api_key
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+⚠️ Never commit your .env file. Ensure .gitignore includes .env.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+🧪 Running Locally
+bash
+Copy
+Edit
+# Install dependencies
+npm install
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start the development server
 npm run dev
-```
+Then visit: http://localhost:5173
 
-**Edit a file directly in GitHub**
+📸 Screenshots
+Add screenshots or a demo GIF here for better visual representation.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+🌐 Deployment
+This app can be deployed using Vercel, Netlify, or Firebase Hosting.
 
-**Use GitHub Codespaces**
+🤝 Contributing
+Contributions are welcome! Please fork the repository and submit a pull request.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+📄 License
+MIT License © 2025 Sanjeeviram
 
-## What technologies are used for this project?
+yaml
+Copy
+Edit
 
-This project is built with:
+---
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/7b34d071-9d4e-4e81-969a-04a46f539855) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Would you like me to tailor this for a **monorepo** if you're managing both frontend and backend in one project?
